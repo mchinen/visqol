@@ -40,15 +40,15 @@ TEST(MismatchedLengths, deg_too_short) {
 
   // Init ViSQOL.
   Visqol::VisqolManager visqol;
-  auto status = visqol.Init(cmd_args.sim_to_quality_mapper_model,
-      cmd_args.use_speech_mode,
-      cmd_args.use_unscaled_speech_mos_mapping,
-      cmd_args.search_window_radius);
+  auto status = visqol.Init(
+      cmd_args.similarity_to_quality_mapper_model, cmd_args.use_speech_mode,
+      cmd_args.use_unscaled_speech_mos_mapping, cmd_args.search_window_radius,
+      cmd_args.use_lattice_model);
   ASSERT_TRUE(status.ok());
 
   // Run ViSQOL.
-  auto status_or = visqol.Run(files_to_compare[0].reference,
-                              files_to_compare[0].degraded);
+  auto status_or =
+      visqol.Run(files_to_compare[0].reference, files_to_compare[0].degraded);
   ASSERT_TRUE(status_or.ok());
   ASSERT_TRUE(status_or.value().moslqo() > kMinMoslqo);
   EXPECT_NEAR(kConformanceGuitarX2MisMatch, status_or.value().moslqo(),
@@ -68,15 +68,15 @@ TEST(MismatchedLengths, deg_too_long) {
 
   // Init ViSQOL.
   Visqol::VisqolManager visqol;
-  auto status = visqol.Init(cmd_args.sim_to_quality_mapper_model,
-      cmd_args.use_speech_mode,
-      cmd_args.use_unscaled_speech_mos_mapping,
-      cmd_args.search_window_radius);
+  auto status = visqol.Init(
+      cmd_args.similarity_to_quality_mapper_model, cmd_args.use_speech_mode,
+      cmd_args.use_unscaled_speech_mos_mapping, cmd_args.search_window_radius,
+      cmd_args.use_lattice_model);
   ASSERT_TRUE(status.ok());
 
   // Run ViSQOL.
-  auto status_or = visqol.Run(files_to_compare[0].reference,
-                              files_to_compare[0].degraded);
+  auto status_or =
+      visqol.Run(files_to_compare[0].reference, files_to_compare[0].degraded);
   ASSERT_TRUE(status_or.ok());
   ASSERT_TRUE(status_or.value().moslqo() > kMinMoslqo);
   EXPECT_NEAR(kConformanceGuitar2secMisMatch, status_or.value().moslqo(),
@@ -96,10 +96,10 @@ TEST(MismatchedLengths, deg_long) {
 
   // Init ViSQOL.
   Visqol::VisqolManager visqol;
-  auto status = visqol.Init(cmd_args.sim_to_quality_mapper_model,
-                            cmd_args.use_speech_mode,
-                            cmd_args.use_unscaled_speech_mos_mapping,
-                            cmd_args.search_window_radius);
+  auto status = visqol.Init(
+      cmd_args.similarity_to_quality_mapper_model, cmd_args.use_speech_mode,
+      cmd_args.use_unscaled_speech_mos_mapping, cmd_args.search_window_radius,
+      cmd_args.use_lattice_model);
   ASSERT_TRUE(status.ok());
 
   // Run ViSQOL.

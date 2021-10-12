@@ -19,21 +19,20 @@
 #include <vector>
 
 #include "absl/status/status.h"
-#include "misc_math.h"
-
 #include "amatrix.h"
+#include "misc_math.h"
 
 namespace Visqol {
 SpeechSimilarityToQualityMapper::SpeechSimilarityToQualityMapper(
-    bool scale_to_max_mos) : scale_to_max_mos_{scale_to_max_mos} {}
+    bool scale_to_max_mos)
+    : scale_to_max_mos_{scale_to_max_mos} {}
 
-
-absl::Status SpeechSimilarityToQualityMapper::Init() {
-  return absl::Status();
-}
+absl::Status SpeechSimilarityToQualityMapper::Init() { return absl::Status(); }
 
 double SpeechSimilarityToQualityMapper::PredictQuality(
-    const std::vector<double> &similarity_vector) const {
+    const std::vector<double>& fvnsim_vector,
+    const std::vector<double>& fstdnsim_vector,
+    const std::vector<double>& fvdegenergy_vector) const {
   // The prediction uses the fit of three parameters for the function
   // ExponentialFromFit given an NSIM value fit over the TCD-VOIP Dataset.
   // See scripts/fit_nsim_to_mos_poly.py for recalculation.
@@ -43,13 +42,12 @@ double SpeechSimilarityToQualityMapper::PredictQuality(
   constexpr float kFitParameterB = 4.685115504;
   constexpr float kFitParameterX0 = 0.76552319;
   constexpr float kFitScale = 1.2031409;
-  double nsim_mean = std::accumulate(similarity_vector.begin(),
-                                     similarity_vector.end(),
-                                     0.0) / static_cast<double>(
-                                         similarity_vector.size());
+  double nsim_mean =
+      std::accumulate(fvnsim_vector.begin(), fvnsim_vector.end(), 0.0) /
+      static_cast<double>(fvnsim_vector.size());
 
-  double mos = MiscMath::ExponentialFromFit(
-      nsim_mean, kFitParameterA, kFitParameterB, kFitParameterX0);
+  double mos = MiscMath::ExponentialFromFit(nsim_mean, kFitParameterA,
+                                            kFitParameterB, kFitParameterX0);
 
   float scale = scale_to_max_mos_ ? kFitScale : 1.0;
 

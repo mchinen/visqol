@@ -40,20 +40,20 @@ const double kPerfectScore = 5.0;
  *  Compare against the ground truth obtained from the KNOWN version
  */
 TEST(RegressionTest, Mono) {
-  const Visqol::CommandLineArgs cmd_args = CommandLineArgsHelper
-      ("testdata/clean_speech/CA01_01.wav",
-       "testdata/clean_speech/transcoded_CA01_01.wav");
+  const Visqol::CommandLineArgs cmd_args = CommandLineArgsHelper(
+      "testdata/clean_speech/CA01_01.wav",
+      "testdata/clean_speech/transcoded_CA01_01.wav");
   Visqol::VisqolManager visqol;
   auto files_to_compare = VisqolCommandLineParser::BuildFilePairPaths(cmd_args);
 
-  auto status = visqol.Init(cmd_args.sim_to_quality_mapper_model,
-      cmd_args.use_speech_mode,
-      cmd_args.use_unscaled_speech_mos_mapping,
-      cmd_args.search_window_radius);
+  auto status = visqol.Init(
+      cmd_args.similarity_to_quality_mapper_model, cmd_args.use_speech_mode,
+      cmd_args.use_unscaled_speech_mos_mapping, cmd_args.search_window_radius,
+      cmd_args.use_lattice_model);
   ASSERT_TRUE(status.ok());
 
-  auto status_or = visqol.Run(files_to_compare[0].reference,
-                              files_to_compare[0].degraded);
+  auto status_or =
+      visqol.Run(files_to_compare[0].reference, files_to_compare[0].degraded);
   ASSERT_TRUE(status_or.ok());
   EXPECT_NEAR(kMonoKnownMos, status_or.value().moslqo(), kTolerance);
 }
@@ -62,20 +62,22 @@ TEST(RegressionTest, Mono) {
  *  Compare against the ground truth obtained from the KNOWN version
  */
 TEST(RegressionTest, Stereo) {
-  const Visqol::CommandLineArgs cmd_args = CommandLineArgsHelper
-      ("testdata/conformance_testdata_subset/guitar48_stereo.wav",
-       "testdata/conformance_testdata_subset/guitar48_stereo_64kbps_aac.wav");
+  const Visqol::CommandLineArgs cmd_args = CommandLineArgsHelper(
+      "testdata/conformance_testdata_subset/"
+      "guitar48_stereo.wav",
+      "testdata/conformance_testdata_subset/"
+      "guitar48_stereo_64kbps_aac.wav");
   Visqol::VisqolManager visqol;
   auto files_to_compare = VisqolCommandLineParser::BuildFilePairPaths(cmd_args);
 
-  auto status = visqol.Init(cmd_args.sim_to_quality_mapper_model,
-      cmd_args.use_speech_mode,
-      cmd_args.use_unscaled_speech_mos_mapping,
-      cmd_args.search_window_radius);
+  auto status = visqol.Init(
+      cmd_args.similarity_to_quality_mapper_model, cmd_args.use_speech_mode,
+      cmd_args.use_unscaled_speech_mos_mapping, cmd_args.search_window_radius,
+      cmd_args.use_lattice_model);
   ASSERT_TRUE(status.ok());
 
-  auto status_or = visqol.Run(files_to_compare[0].reference,
-                              files_to_compare[0].degraded);
+  auto status_or =
+      visqol.Run(files_to_compare[0].reference, files_to_compare[0].degraded);
   ASSERT_TRUE(status_or.ok());
   EXPECT_NEAR(kConformanceGuitar64aac, status_or.value().moslqo(), kTolerance);
 }
@@ -86,10 +88,10 @@ TEST(RegressionTest, Stereo) {
  */
 TEST(VisqolCommandLineTest, FailedInit) {
   Visqol::VisqolManager visqol;
-  auto status = visqol.Init(FilePath("non/existent/file.txt"), false, false, 60);
+  auto status =
+      visqol.Init(FilePath("non/existent/file.txt"), false, false, 60, false);
   ASSERT_FALSE(status.ok());
-  ASSERT_EQ(absl::StatusCode::kInvalidArgument,
-      status.code());
+  ASSERT_EQ(absl::StatusCode::kInvalidArgument, status.code());
 }
 
 /**
@@ -97,18 +99,17 @@ TEST(VisqolCommandLineTest, FailedInit) {
  * status is returned.
  */
 TEST(VisqolCommandLineTest, MissingInit) {
-  const Visqol::CommandLineArgs cmd_args = CommandLineArgsHelper
-      ("testdata/clean_speech/CA01_01.wav",
-       "testdata/clean_speech/transcoded_CA01_01.wav");
+  const Visqol::CommandLineArgs cmd_args = CommandLineArgsHelper(
+      "testdata/clean_speech/CA01_01.wav",
+      "testdata/clean_speech/transcoded_CA01_01.wav");
   Visqol::VisqolManager visqol;
   auto files_to_compare = VisqolCommandLineParser::BuildFilePairPaths(cmd_args);
 
   // Run withouth calling Init()
-  auto status_or = visqol.Run(files_to_compare[0].reference,
-                              files_to_compare[0].degraded);
+  auto status_or =
+      visqol.Run(files_to_compare[0].reference, files_to_compare[0].degraded);
   ASSERT_FALSE(status_or.ok());
-  ASSERT_EQ(absl::StatusCode::kAborted,
-      status_or.status().code());
+  ASSERT_EQ(absl::StatusCode::kAborted, status_or.status().code());
 }
 
 /**
@@ -126,20 +127,22 @@ TEST(VisqolCommandLineTest, MissingInit) {
  * This test asserts that the FVNSIM value at this center freq is the lowest.
  */
 TEST(VisqolCommandLineTest, FilteredFreqs) {
-  const Visqol::CommandLineArgs cmd_args = CommandLineArgsHelper
-      ("testdata/conformance_testdata_subset/guitar48_stereo.wav",
-       "testdata/filtered_freqs/guitar48_stereo_10k_filtered_freqs.wav");
+  const Visqol::CommandLineArgs cmd_args = CommandLineArgsHelper(
+      "testdata/conformance_testdata_subset/"
+      "guitar48_stereo.wav",
+      "testdata/filtered_freqs/"
+      "guitar48_stereo_10k_filtered_freqs.wav");
   Visqol::VisqolManager visqol;
   auto files_to_compare = VisqolCommandLineParser::BuildFilePairPaths(cmd_args);
 
-  auto status = visqol.Init(cmd_args.sim_to_quality_mapper_model,
-      cmd_args.use_speech_mode,
-      cmd_args.use_unscaled_speech_mos_mapping,
-      cmd_args.search_window_radius);
+  auto status = visqol.Init(
+      cmd_args.similarity_to_quality_mapper_model, cmd_args.use_speech_mode,
+      cmd_args.use_unscaled_speech_mos_mapping, cmd_args.search_window_radius,
+      cmd_args.use_lattice_model);
   ASSERT_TRUE(status.ok());
 
-  auto status_or = visqol.Run(files_to_compare[0].reference,
-                              files_to_compare[0].degraded);
+  auto status_or =
+      visqol.Run(files_to_compare[0].reference, files_to_compare[0].degraded);
   ASSERT_TRUE(status_or.ok());
   SimilarityResultMsg sim_result_msg = status_or.value();
   auto fvnsim = sim_result_msg.fvnsim();
@@ -166,7 +169,7 @@ TEST(VisqolCommandLineTest, FilteredFreqs) {
   // FVNSIM ordering by testing the 10k band for both.
   auto per_patch_dbg = sim_result_msg.patch_sims();
   double fbm_10k = 0.0;
-  for (const auto per_patch_fbm :  per_patch_dbg) {
+  for (const auto per_patch_fbm : per_patch_dbg) {
     fbm_10k += per_patch_fbm.freq_band_means()[k10kCenterFreqBandIndex];
   }
   fbm_10k = fbm_10k / per_patch_dbg.size();
@@ -186,8 +189,9 @@ TEST(VisqolCommandLineTest, IdenticalStddevNsim) {
   auto files_to_compare = VisqolCommandLineParser::BuildFilePairPaths(cmd_args);
 
   auto status = visqol.Init(
-      cmd_args.sim_to_quality_mapper_model, cmd_args.use_speech_mode,
-      cmd_args.use_unscaled_speech_mos_mapping, cmd_args.search_window_radius);
+      cmd_args.similarity_to_quality_mapper_model, cmd_args.use_speech_mode,
+      cmd_args.use_unscaled_speech_mos_mapping, cmd_args.search_window_radius,
+      cmd_args.use_lattice_model);
   ASSERT_TRUE(status.ok());
 
   auto status_or =
@@ -214,20 +218,22 @@ TEST(VisqolCommandLineTest, IdenticalStddevNsim) {
  * non-48k sample rates.
  */
 TEST(VisqolCommandLineTest, Non48kSampleRate) {
-  const Visqol::CommandLineArgs cmd_args = CommandLineArgsHelper
-      ("testdata/non_48k_sample_rate/guitar48_stereo_44100Hz.wav",
-       "testdata/non_48k_sample_rate/guitar48_stereo_44100Hz.wav");
+  const Visqol::CommandLineArgs cmd_args = CommandLineArgsHelper(
+      "testdata/non_48k_sample_rate/"
+      "guitar48_stereo_44100Hz.wav",
+      "testdata/non_48k_sample_rate/"
+      "guitar48_stereo_44100Hz.wav");
   Visqol::VisqolManager visqol;
   auto files_to_compare = VisqolCommandLineParser::BuildFilePairPaths(cmd_args);
 
-  auto status = visqol.Init(cmd_args.sim_to_quality_mapper_model,
-      cmd_args.use_speech_mode,
-      cmd_args.use_unscaled_speech_mos_mapping,
-      cmd_args.search_window_radius);
+  auto status = visqol.Init(
+      cmd_args.similarity_to_quality_mapper_model, cmd_args.use_speech_mode,
+      cmd_args.use_unscaled_speech_mos_mapping, cmd_args.search_window_radius,
+      cmd_args.use_lattice_model);
   ASSERT_TRUE(status.ok());
 
-  auto status_or = visqol.Run(files_to_compare[0].reference,
-                              files_to_compare[0].degraded);
+  auto status_or =
+      visqol.Run(files_to_compare[0].reference, files_to_compare[0].degraded);
   // We're not interested in the MOS-LQO for this test, just that it completed
   // successfully with non-48k input.
   ASSERT_TRUE(status_or.ok());
@@ -239,20 +245,22 @@ TEST(VisqolCommandLineTest, Non48kSampleRate) {
  */
 TEST(VisqolCommandLineTest, DifferentSampleRate) {
   // Ref 48k, Deg 44.1k
-  const Visqol::CommandLineArgs cmd_args = CommandLineArgsHelper
-      ("testdata/conformance_testdata_subset/guitar48_stereo.wav",
-       "testdata/non_48k_sample_rate/guitar48_stereo_44100Hz.wav");
+  const Visqol::CommandLineArgs cmd_args = CommandLineArgsHelper(
+      "testdata/conformance_testdata_subset/"
+      "guitar48_stereo.wav",
+      "testdata/non_48k_sample_rate/"
+      "guitar48_stereo_44100Hz.wav");
   Visqol::VisqolManager visqol;
   auto files_to_compare = VisqolCommandLineParser::BuildFilePairPaths(cmd_args);
 
-  auto status = visqol.Init(cmd_args.sim_to_quality_mapper_model,
-      cmd_args.use_speech_mode,
-      cmd_args.use_unscaled_speech_mos_mapping,
-      cmd_args.search_window_radius);
+  auto status = visqol.Init(
+      cmd_args.similarity_to_quality_mapper_model, cmd_args.use_speech_mode,
+      cmd_args.use_unscaled_speech_mos_mapping, cmd_args.search_window_radius,
+      cmd_args.use_lattice_model);
   ASSERT_TRUE(status.ok());
 
-  auto status_or = visqol.Run(files_to_compare[0].reference,
-                              files_to_compare[0].degraded);
+  auto status_or =
+      visqol.Run(files_to_compare[0].reference, files_to_compare[0].degraded);
   ASSERT_FALSE(status_or.ok());
 }
 
@@ -260,40 +268,38 @@ TEST(VisqolCommandLineTest, DifferentSampleRate) {
  * Test the debug output patch timestamps. Test with two identical files.
  */
 TEST(VisqolCommandLineTest, PatchTimestampsIdenticalFiles) {
-  const Visqol::CommandLineArgs cmd_args = CommandLineArgsHelper
-      ("testdata/conformance_testdata_subset/guitar48_stereo.wav",
-       "testdata/conformance_testdata_subset/guitar48_stereo.wav");
+  const Visqol::CommandLineArgs cmd_args = CommandLineArgsHelper(
+      "testdata/conformance_testdata_subset/"
+      "guitar48_stereo.wav",
+      "testdata/conformance_testdata_subset/"
+      "guitar48_stereo.wav");
   Visqol::VisqolManager visqol;
   auto files_to_compare = VisqolCommandLineParser::BuildFilePairPaths(cmd_args);
 
-  auto status = visqol.Init(cmd_args.sim_to_quality_mapper_model,
-      cmd_args.use_speech_mode,
-      cmd_args.use_unscaled_speech_mos_mapping,
-      cmd_args.search_window_radius);
+  auto status = visqol.Init(
+      cmd_args.similarity_to_quality_mapper_model, cmd_args.use_speech_mode,
+      cmd_args.use_unscaled_speech_mos_mapping, cmd_args.search_window_radius,
+      cmd_args.use_lattice_model);
   ASSERT_TRUE(status.ok());
 
-  auto status_or = visqol.Run(files_to_compare[0].reference,
-                              files_to_compare[0].degraded);
+  auto status_or =
+      visqol.Run(files_to_compare[0].reference, files_to_compare[0].degraded);
   ASSERT_TRUE(status_or.ok());
   auto patch_sims = status_or.value().patch_sims();
   ASSERT_EQ(kGuitarNumPatches, patch_sims.size());
   for (size_t i = 0; i < kGuitarNumPatches; i++) {
     if (i == 0) {
-      ASSERT_NEAR(kFirstGuitarTimestamp,
-                  patch_sims[i].ref_patch_start_time(),
+      ASSERT_NEAR(kFirstGuitarTimestamp, patch_sims[i].ref_patch_start_time(),
                   kTolerance);
     } else {
-      ASSERT_NEAR(patch_sims[i-1].ref_patch_end_time(),
-                  patch_sims[i].ref_patch_start_time(),
-                  kTolerance);
+      ASSERT_NEAR(patch_sims[i - 1].ref_patch_end_time(),
+                  patch_sims[i].ref_patch_start_time(), kTolerance);
     }
 
     ASSERT_NEAR(patch_sims[i].ref_patch_start_time(),
-                patch_sims[i].deg_patch_start_time(),
-                kTolerance);
+                patch_sims[i].deg_patch_start_time(), kTolerance);
     ASSERT_NEAR(patch_sims[i].ref_patch_end_time(),
-                patch_sims[i].deg_patch_end_time(),
-                kTolerance);
+                patch_sims[i].deg_patch_end_time(), kTolerance);
   }
 }
 
@@ -304,20 +310,22 @@ TEST(VisqolCommandLineTest, PatchTimestampsIdenticalFiles) {
  * show this 50ms lag.
  */
 TEST(VisqolCommandLineTest, PatchTimestampsMissing50ms) {
-  const Visqol::CommandLineArgs cmd_args = CommandLineArgsHelper
-      ("testdata/conformance_testdata_subset/guitar48_stereo.wav",
-       "testdata/mismatched_duration/guitar48_stereo_middle_50ms_cut.wav");
+  const Visqol::CommandLineArgs cmd_args = CommandLineArgsHelper(
+      "testdata/conformance_testdata_subset/"
+      "guitar48_stereo.wav",
+      "testdata/mismatched_duration/"
+      "guitar48_stereo_middle_50ms_cut.wav");
   Visqol::VisqolManager visqol;
   auto files_to_compare = VisqolCommandLineParser::BuildFilePairPaths(cmd_args);
 
-  auto status = visqol.Init(cmd_args.sim_to_quality_mapper_model,
-      cmd_args.use_speech_mode,
-      cmd_args.use_unscaled_speech_mos_mapping,
-      cmd_args.search_window_radius);
+  auto status = visqol.Init(
+      cmd_args.similarity_to_quality_mapper_model, cmd_args.use_speech_mode,
+      cmd_args.use_unscaled_speech_mos_mapping, cmd_args.search_window_radius,
+      cmd_args.use_lattice_model);
   ASSERT_TRUE(status.ok());
 
-  auto status_or = visqol.Run(files_to_compare[0].reference,
-                              files_to_compare[0].degraded);
+  auto status_or =
+      visqol.Run(files_to_compare[0].reference, files_to_compare[0].degraded);
   ASSERT_TRUE(status_or.ok());
   auto patch_sims = status_or.value().patch_sims();
   ASSERT_EQ(kGuitarNumPatches, patch_sims.size());
@@ -325,34 +333,27 @@ TEST(VisqolCommandLineTest, PatchTimestampsMissing50ms) {
   // Test the non-lagged patches
   for (size_t i = 0; i < kGuitarStartLagIndex; i++) {
     if (i == 0) {
-      ASSERT_NEAR(kFirstGuitarTimestamp,
-                  patch_sims[i].ref_patch_start_time(),
+      ASSERT_NEAR(kFirstGuitarTimestamp, patch_sims[i].ref_patch_start_time(),
                   kTolerance);
     } else {
-      ASSERT_NEAR(patch_sims[i-1].ref_patch_end_time(),
-                  patch_sims[i].ref_patch_start_time(),
-                  kLagTolerance);
+      ASSERT_NEAR(patch_sims[i - 1].ref_patch_end_time(),
+                  patch_sims[i].ref_patch_start_time(), kLagTolerance);
     }
 
     ASSERT_NEAR(patch_sims[i].ref_patch_start_time(),
-                patch_sims[i].deg_patch_start_time(),
-                kLagTolerance);
+                patch_sims[i].deg_patch_start_time(), kLagTolerance);
     ASSERT_NEAR(patch_sims[i].ref_patch_end_time(),
-                patch_sims[i].deg_patch_end_time(),
-                kLagTolerance);
+                patch_sims[i].deg_patch_end_time(), kLagTolerance);
   }
 
   // Test the lagged patches
   for (size_t i = kGuitarStartLagIndex; i < kGuitarNumPatches; i++) {
-    ASSERT_NEAR(patch_sims[i-1].ref_patch_end_time(),
-                patch_sims[i].ref_patch_start_time(),
-                kLagTolerance);
+    ASSERT_NEAR(patch_sims[i - 1].ref_patch_end_time(),
+                patch_sims[i].ref_patch_start_time(), kLagTolerance);
     ASSERT_NEAR(patch_sims[i].ref_patch_start_time(),
-                patch_sims[i].deg_patch_start_time() + kLag,
-                kLagTolerance);
+                patch_sims[i].deg_patch_start_time() + kLag, kLagTolerance);
     ASSERT_NEAR(patch_sims[i].ref_patch_end_time(),
-                patch_sims[i].deg_patch_end_time() + kLag,
-                kLagTolerance);
+                patch_sims[i].deg_patch_end_time() + kLag, kLagTolerance);
   }
 }
 
@@ -362,20 +363,21 @@ TEST(VisqolCommandLineTest, PatchTimestampsMissing50ms) {
  * audio.
  */
 TEST(VisqolCommandLineTest, SpeechModeDisabled) {
-  const Visqol::CommandLineArgs cmd_args = CommandLineArgsHelper
-      ("testdata/clean_speech/CA01_01.wav",
-       "testdata/clean_speech/transcoded_CA01_01.wav", "", false, true);
+  const Visqol::CommandLineArgs cmd_args = CommandLineArgsHelper(
+      "testdata/clean_speech/CA01_01.wav",
+      "testdata/clean_speech/transcoded_CA01_01.wav", "",
+      false, true);
   Visqol::VisqolManager visqol;
   auto files_to_compare = VisqolCommandLineParser::BuildFilePairPaths(cmd_args);
 
-  auto status = visqol.Init(cmd_args.sim_to_quality_mapper_model,
-      cmd_args.use_speech_mode,
-      cmd_args.use_unscaled_speech_mos_mapping,
-      cmd_args.search_window_radius);
+  auto status = visqol.Init(
+      cmd_args.similarity_to_quality_mapper_model, cmd_args.use_speech_mode,
+      cmd_args.use_unscaled_speech_mos_mapping, cmd_args.search_window_radius,
+      cmd_args.use_lattice_model);
   ASSERT_TRUE(status.ok());
 
-  auto status_or = visqol.Run(files_to_compare[0].reference,
-                              files_to_compare[0].degraded);
+  auto status_or =
+      visqol.Run(files_to_compare[0].reference, files_to_compare[0].degraded);
   ASSERT_TRUE(status_or.ok());
   EXPECT_NEAR(kMonoKnownMos, status_or.value().moslqo(), kTolerance);
 }
@@ -386,20 +388,21 @@ TEST(VisqolCommandLineTest, SpeechModeDisabled) {
  * expected.
  */
 TEST(VisqolCommandLineTest, ScaledSpeechMode) {
-  const Visqol::CommandLineArgs cmd_args = CommandLineArgsHelper
-      ("testdata/clean_speech/CA01_01.wav",
-       "testdata/clean_speech/CA01_01.wav", "", true, false);
+  const Visqol::CommandLineArgs cmd_args = CommandLineArgsHelper(
+      "testdata/clean_speech/CA01_01.wav",
+      "testdata/clean_speech/CA01_01.wav", "", true, false,
+      60, false);
   Visqol::VisqolManager visqol;
   auto files_to_compare = VisqolCommandLineParser::BuildFilePairPaths(cmd_args);
 
-  auto status = visqol.Init(cmd_args.sim_to_quality_mapper_model,
-      cmd_args.use_speech_mode,
-      cmd_args.use_unscaled_speech_mos_mapping,
-      cmd_args.search_window_radius);
+  auto status = visqol.Init(
+      cmd_args.similarity_to_quality_mapper_model, cmd_args.use_speech_mode,
+      cmd_args.use_unscaled_speech_mos_mapping, cmd_args.search_window_radius,
+      cmd_args.use_lattice_model);
   ASSERT_TRUE(status.ok());
 
-  auto status_or = visqol.Run(files_to_compare[0].reference,
-                              files_to_compare[0].degraded);
+  auto status_or =
+      visqol.Run(files_to_compare[0].reference, files_to_compare[0].degraded);
   ASSERT_TRUE(status_or.ok());
   EXPECT_NEAR(kPerfectScore, status_or.value().moslqo(), kTolerance);
 }
@@ -409,24 +412,52 @@ TEST(VisqolCommandLineTest, ScaledSpeechMode) {
  * and degraded signals and run in unscaled mode. A score of 4.x is expected.
  */
 TEST(VisqolCommandLineTest, UnscaledSpeechMode) {
-  const Visqol::CommandLineArgs cmd_args = CommandLineArgsHelper
-      ("testdata/clean_speech/CA01_01.wav",
-       "testdata/clean_speech/CA01_01.wav", "", true, true);
+  const Visqol::CommandLineArgs cmd_args = CommandLineArgsHelper(
+      "testdata/clean_speech/CA01_01.wav",
+      "testdata/clean_speech/CA01_01.wav", "", true, true,
+      60, false);
   Visqol::VisqolManager visqol;
   auto files_to_compare = VisqolCommandLineParser::BuildFilePairPaths(cmd_args);
 
-  auto status = visqol.Init(cmd_args.sim_to_quality_mapper_model,
-      cmd_args.use_speech_mode,
-      cmd_args.use_unscaled_speech_mos_mapping,
-      cmd_args.search_window_radius);
+  auto status = visqol.Init(
+      cmd_args.similarity_to_quality_mapper_model, cmd_args.use_speech_mode,
+      cmd_args.use_unscaled_speech_mos_mapping, cmd_args.search_window_radius,
+      cmd_args.use_lattice_model);
   ASSERT_TRUE(status.ok());
 
-  auto status_or = visqol.Run(files_to_compare[0].reference,
-                              files_to_compare[0].degraded);
+  auto status_or =
+      visqol.Run(files_to_compare[0].reference, files_to_compare[0].degraded);
   ASSERT_TRUE(status_or.ok());
-  EXPECT_NEAR(kCA01_01UnscaledPerfectScore, status_or.value().moslqo(),
-              kTolerance);
+  EXPECT_NEAR(kCA01_01UnscaledPerfectScoreExponential,
+              status_or.value().moslqo(), kTolerance);
 }
+
+
+/**
+ * Test idential files has lag of 0.
+ */
+TEST(VisqolCommandLineTest, ZeroLagOnidenticalFiles) {
+  const Visqol::CommandLineArgs cmd_args = CommandLineArgsHelper(
+      "testdata/conformance_testdata_subset/"
+      "guitar48_stereo.wav",
+      "testdata/conformance_testdata_subset/"
+      "guitar48_stereo.wav");
+  Visqol::VisqolManager visqol;
+  auto files_to_compare = VisqolCommandLineParser::BuildFilePairPaths(cmd_args);
+
+  auto status = visqol.Init(
+      cmd_args.similarity_to_quality_mapper_model, cmd_args.use_speech_mode,
+      cmd_args.use_unscaled_speech_mos_mapping, cmd_args.search_window_radius,
+      cmd_args.use_lattice_model);
+  ASSERT_TRUE(status.ok());
+
+  auto status_or =
+      visqol.Run(files_to_compare[0].reference, files_to_compare[0].degraded);
+  ASSERT_TRUE(status_or.ok());
+  SimilarityResultMsg sim_result_msg = status_or.value();
+  EXPECT_NEAR(0.0, status_or.value().alignment_lag_s(), kLagTolerance);
+}
+
 
 }  // namespace
 }  // namespace Visqol

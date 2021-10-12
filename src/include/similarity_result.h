@@ -22,7 +22,6 @@
 #include "file_path.h"
 #include "patch_similarity_comparator.h"
 
-
 namespace Visqol {
 /**
  * Struct used for storing debug information related to a specific
@@ -92,6 +91,12 @@ struct SimilarityResult {
    * path to this file.
    */
   FilePath degraded;
+
+  /**
+   * If the degraded audio was additionally aligned, this will store the value
+   * received from alignment.cc
+   */
+  double alignment_lag_s;
 };
 }  // namespace Visqol
 

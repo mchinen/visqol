@@ -15,7 +15,6 @@
 #include "misc_audio.h"
 
 #include "gtest/gtest.h"
-
 #include "file_path.h"
 
 namespace Visqol {
@@ -69,7 +68,8 @@ TEST(LoadAsMono, MonoFromEmptyStream) {
 
 TEST(LoadAsMono, Stereo) {
   FilePath stereo_file{
-      "testdata/conformance_testdata_subset/guitar48_stereo.wav"};
+      "testdata/conformance_testdata_subset/"
+      "guitar48_stereo.wav"};
 
   auto wavreader_audio = Visqol::MiscAudio::LoadAsMono(stereo_file);
   ASSERT_EQ(kStereoTestsample_rate, wavreader_audio.sample_rate);

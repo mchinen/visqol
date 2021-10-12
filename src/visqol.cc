@@ -18,6 +18,8 @@
 #include <utility>
 #include <vector>
 
+#include "absl/base/internal/raw_logging.h"
+#include "absl/status/statusor.h"
 #include "amatrix.h"
 #include "comparison_patches_selector.h"
 #include "file_path.h"
@@ -28,20 +30,18 @@
 #include "similarity_to_quality_mapper.h"
 #include "spectrogram.h"
 #include "spectrogram_builder.h"
-#include "absl/base/internal/raw_logging.h"
-#include "absl/status/statusor.h"
 
 namespace Visqol {
 absl::StatusOr<SimilarityResult> Visqol::CalculateSimilarity(
-    const AudioSignal &ref_signal, AudioSignal &deg_signal,
-    SpectrogramBuilder *spect_builder, const AnalysisWindow &window,
-    const ImagePatchCreator *patch_creator,
-    const ComparisonPatchesSelector *comparison_patches_selector,
-    const SimilarityToQualityMapper *sim_to_qual_mapper,
+    const AudioSignal& ref_signal, AudioSignal& deg_signal,
+    SpectrogramBuilder* spect_builder, const AnalysisWindow& window,
+    const ImagePatchCreator* patch_creator,
+    const ComparisonPatchesSelector* comparison_patches_selector,
+    const SimilarityToQualityMapper* sim_to_qual_mapper,
     const int search_window) const {
   /////////////////// Stage 1: Preprocessing ///////////////////
-  deg_signal = MiscAudio::ScaleToMatchSoundPressureLevel(ref_signal,
-      deg_signal);
+  deg_signal =
+      MiscAudio::ScaleToMatchSoundPressureLevel(ref_signal, deg_signal);
 
   // build the reference spectrogram.
   const auto ref_spectro_result = spect_builder->Build(ref_signal, window);
@@ -72,8 +72,8 @@ absl::StatusOr<SimilarityResult> Visqol::CalculateSimilarity(
     return ref_patch_result.status();
   }
   auto ref_patch_indices = ref_patch_result.value();
-  const double frame_duration = CalcFrameDuration(window.size * window.overlap,
-                                                  ref_signal.sample_rate);
+  const double frame_duration =
+      CalcFrameDuration(window.size * window.overlap, ref_signal.sample_rate);
 
   auto ref_patches = patch_creator->CreatePatchesFromIndices(
       ref_spectrogram.Data(), ref_patch_indices);
@@ -90,8 +90,7 @@ absl::StatusOr<SimilarityResult> Visqol::CalculateSimilarity(
   // patch times.
   auto realign_result =
       comparison_patches_selector->FinelyAlignAndRecreatePatches(
-          sim_match_info, ref_signal, deg_signal, spect_builder,
-          window);
+          sim_match_info, ref_signal, deg_signal, spect_builder, window);
   if (!realign_result.ok()) {
     return realign_result.status();
   }
@@ -103,11 +102,11 @@ absl::StatusOr<SimilarityResult> Visqol::CalculateSimilarity(
       CalcPerPatchMeanFreqBandStdDevs(sim_match_info, frame_duration);
   AMatrix<double> fvdegenergy =
       CalcPerPatchMeanFreqBandDegradedEnergy(sim_match_info);
-  double moslqo = PredictMos(fvnsim, sim_to_qual_mapper);
+  double moslqo = PredictMos(fvnsim, fstdnsim, fvdegenergy, sim_to_qual_mapper);
 
   // calc vnsim
   double sum = 0;
-  for (double &d : fvnsim) {
+  for (double& d : fvnsim) {
     sum += d;
   }
   double vnsim = sum / fvnsim.NumRows();
@@ -128,18 +127,21 @@ absl::StatusOr<SimilarityResult> Visqol::CalculateSimilarity(
   return r;
 }
 
-double Visqol::PredictMos(const AMatrix<double> &fvnsim,
-                               const SimilarityToQualityMapper *mapper) const {
-  double predicted_quality = mapper->PredictQuality(fvnsim.ToVector());
+double Visqol::PredictMos(const AMatrix<double>& fvnsim,
+                          const AMatrix<double>& fstdnsim,
+                          const AMatrix<double>& fvdegenergy,
+                          const SimilarityToQualityMapper* mapper) const {
+  double predicted_quality = mapper->PredictQuality(
+      fvnsim.ToVector(), fstdnsim.ToVector(), fvdegenergy.ToVector());
   return predicted_quality;
 }
 
 // calc fvnsim
 AMatrix<double> Visqol::CalcPerPatchMeanFreqBandMeans(
-    const std::vector<PatchSimilarityResult> &sim_match_info) const {
+    const std::vector<PatchSimilarityResult>& sim_match_info) const {
   size_t num_freq_bands = sim_match_info[0].freq_band_means.NumRows();
   auto fvnsim = AMatrix<double>::Filled(num_freq_bands, 1, 0.0);
-  for (const PatchSimilarityResult &patch : sim_match_info) {
+  for (const PatchSimilarityResult& patch : sim_match_info) {
     for (size_t band = 0; band < patch.freq_band_means.NumRows(); band++) {
       fvnsim(band) += patch.freq_band_means(band);
     }
@@ -148,13 +150,13 @@ AMatrix<double> Visqol::CalcPerPatchMeanFreqBandMeans(
 }
 
 AMatrix<double> Visqol::CalcPerPatchMeanFreqBandDegradedEnergy(
-    const std::vector<PatchSimilarityResult> &sim_match_info) const {
+    const std::vector<PatchSimilarityResult>& sim_match_info) const {
   // All patches have the same number of frequency bands.
   size_t num_freq_bands = sim_match_info[0].freq_band_deg_energy.NumRows();
   // Create an empty matrix to accumulate the energy over the patches.
-  AMatrix<double> total_fvdegenergy = AMatrix<double>::Filled(
-      num_freq_bands, 1, 0.0);
-  for (const PatchSimilarityResult &patch : sim_match_info) {
+  AMatrix<double> total_fvdegenergy =
+      AMatrix<double>::Filled(num_freq_bands, 1, 0.0);
+  for (const PatchSimilarityResult& patch : sim_match_info) {
     for (size_t band = 0; band < patch.freq_band_deg_energy.NumRows(); band++) {
       total_fvdegenergy(band) += patch.freq_band_deg_energy(band);
     }
@@ -163,14 +165,14 @@ AMatrix<double> Visqol::CalcPerPatchMeanFreqBandDegradedEnergy(
 }
 
 AMatrix<double> Visqol::CalcPerPatchMeanFreqBandStdDevs(
-    const std::vector<PatchSimilarityResult> &sim_match_info,
+    const std::vector<PatchSimilarityResult>& sim_match_info,
     const double frame_duration) const {
   const size_t num_freq_bands = sim_match_info[0].freq_band_means.NumRows();
   AMatrix<double> fvnsim = AMatrix<double>::Filled(num_freq_bands, 1, 0.0);
 
   AMatrix<double> contribution =
       AMatrix<double>::Filled(num_freq_bands, 1, 0.0);
-  for (const PatchSimilarityResult &patch : sim_match_info) {
+  for (const PatchSimilarityResult& patch : sim_match_info) {
     for (size_t band = 0; band < patch.freq_band_means.NumRows(); band++) {
       fvnsim(band) += patch.freq_band_means(band);
     }
@@ -180,11 +182,11 @@ AMatrix<double> Visqol::CalcPerPatchMeanFreqBandStdDevs(
   // Now that we have the global mean, we can compute the combined
   // variance/stddev.
   int total_frame_count = 0;
-  for (const PatchSimilarityResult &patch : sim_match_info) {
-    const double secs_in_patch = (patch.ref_patch_end_time -
-                                  patch.ref_patch_start_time);
-    const int frame_count = static_cast<int>(
-        std::ceil(secs_in_patch / frame_duration));
+  for (const PatchSimilarityResult& patch : sim_match_info) {
+    const double secs_in_patch =
+        (patch.ref_patch_end_time - patch.ref_patch_start_time);
+    const int frame_count =
+        static_cast<int>(std::ceil(secs_in_patch / frame_duration));
     total_frame_count += frame_count;
     for (size_t band = 0; band < patch.freq_band_means.NumRows(); band++) {
       // Calculate the total variance by combining mean and stddev for each
@@ -202,19 +204,17 @@ AMatrix<double> Visqol::CalcPerPatchMeanFreqBandStdDevs(
   // Square root is not defined for AMatrix, so we can't include it as above.
   // Instead, use a transform on the elements. Also, filter out negative numbers
   // due to precision issues that would cause NaNs.
-  std::transform(result.begin(), result.end(), result.begin(),
-                 [&](double &d) {
-                   if (d < 0.0) {
-                     return 0.;
-                   } else {
-                     return sqrt(d);
-                   }
-                 });
+  std::transform(result.begin(), result.end(), result.begin(), [&](double& d) {
+    if (d < 0.0) {
+      return 0.;
+    } else {
+      return sqrt(d);
+    }
+  });
   return result;
 }
 
-double Visqol::AlterForSimilarityExtremes(double vnsim,
-                                               double moslqo) const {
+double Visqol::AlterForSimilarityExtremes(double vnsim, double moslqo) const {
   // Stop totally dissimilar signals from getting a good score.
   // The SVM is trained on the same songs with different quality.
   // In situations where it's given a fvnsim for two completely
@@ -242,7 +242,7 @@ double Visqol::AlterForSimilarityExtremes(double vnsim,
 }
 
 double Visqol::CalcFrameDuration(const size_t frame_size,
-                                      const size_t sample_rate) const {
+                                 const size_t sample_rate) const {
   return frame_size / static_cast<double>(sample_rate);
 }
 }  // namespace Visqol

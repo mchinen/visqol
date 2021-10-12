@@ -1,3 +1,6 @@
+load("@com_github_grpc_grpc//bazel:python_rules.bzl", "py_proto_library")
+load("tfcompile.bzl", "tf_library")
+
 package(
     default_visibility = ["//visibility:private"],
 )
@@ -33,6 +36,18 @@ cc_proto_library(
     deps = [":visqol_config"],
 )
 
+py_proto_library(
+    name = "similarity_result_py_pb2",
+    visibility = ["//visibility:public"],
+    deps = [":similarity_result"],
+)
+
+py_proto_library(
+    name = "visqol_config_py_pb2",
+    visibility = ["//visibility:public"],
+    deps = [":visqol_config"],
+)
+
 cc_library(
     name = "visqol_lib",
     srcs = glob(
@@ -64,22 +79,21 @@ cc_library(
     visibility = ["//visibility:public"],
     deps = [
         ":similarity_result_cc_proto",
+        ":speech_lattice_compiled_graph",
         ":visqol_config_cc_proto",
-        "@com_google_absl//absl/base",
         "@com_google_absl//absl/flags:flag",
         "@com_google_absl//absl/flags:parse",
         "@com_google_absl//absl/flags:usage",
         "@com_google_absl//absl/memory",
         "@com_google_absl//absl/status",
         "@com_google_absl//absl/status:statusor",
+        "@com_google_absl//absl/strings",
         "@com_google_absl//absl/synchronization",
         "@com_google_absl//absl/types:optional",
         "@com_google_absl//absl/types:span",
         "@armadillo_headers//:armadillo_header",
         "@svm_lib//:libsvm",
         "@pffft_lib//:pffft_lib",
-        "@boost//:filesystem",
-        "@boost//:system",
         "@com_google_protobuf//:protobuf_lite",
     ],
 )
@@ -149,6 +163,7 @@ cc_library(
         ":visqol_lib",
         "@com_google_googletest//:gtest_main",
         "@com_google_absl//absl/flags:flag",
+        "@com_google_absl//absl/strings",
     ],
 )
 
@@ -307,6 +322,7 @@ cc_test(
         ":test_utility",
         ":visqol_lib",
         "@com_google_googletest//:gtest_main",
+        "@com_google_absl//absl/strings",
     ],
 )
 
@@ -528,6 +544,40 @@ cc_test(
         ":test_utility",
         ":visqol_lib",
         "@com_google_googletest//:gtest_main",
+        "@com_google_absl//absl/strings",
         "@com_google_absl//absl/status",
     ],
+)
+
+cc_test(
+    name = "speech_lattice_quality_mapper_test",
+    srcs = ["tests/speech_lattice_quality_mapper_test.cc"],
+    data = ["//model:speech_lattice_model_medium_size"],
+    deps = [
+        ":visqol_lib",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+# This rule creates the following targets:
+#
+# * speech_lattice_compiled_graph: cc_library packaging the generated header and object files
+# * speech_lattice_compiled_graph_test: cc_test containing a simple test and benchmark
+# * speech_lattice_compiled_graph_benchmark : cc_binary containing a stand-alone benchmark
+tf_library(
+    # The frozen graph is the crystals saved model from scripts/train_lattice.py
+    # In order to create the frozen graph, use the freeze_graph cli tool:
+    #
+    # blaze run -c opt third_party/tensorflow/python/tools:freeze_graph -- \
+    #   --output_node_names "output" \
+    #   --input_saved_model_dir /saved/model/dir \
+    #   --output_graph /path/to/frozen_graph.pb
+    #
+    name = "speech_lattice_compiled_graph",
+    # The configuration file specifies the tf graph's feeds and fetches.
+    # See details in uci_heart_tfcompile_config.pbtxt.
+    config = "//model:lattice_nsimstddeg_tfcompile_config.pbtxt",
+    cpp_class = "Visqol::DeepLatticeNetwork::MediumSpeechModel",
+    gen_test = False,
+    graph = "//model:lattice_tcditugen_ls3_140_lap1e3_ls16_4_frozen_graph.pb",
 )

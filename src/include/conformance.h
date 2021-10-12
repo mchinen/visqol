@@ -29,12 +29,14 @@
 // Major version change history:
 // Feb 2020: v300 - polynomial fitting for speech mode, SVR for audio mode.
 // Oct 2020: v310 - exponential fitting for speech mode, (audio mode unchanged).
-#define kVisqolConformanceNumber (310)
+// Aug 2021: v320 - lattice model for speech mode, (audio mode unchanged).
+#define kVisqolConformanceNumber (320)
 
 // If the scores for these known files changes, tests/conformance_test will fail
 // Whenever these constants need to be updated, kVisqolConformanceNumber should
 // be incremented.
-#define kConformanceSpeechCA01Transcoded (2.3691150188221259)
+#define kConformanceSpeechCA01TranscodedLattice (2.7300748825073242)
+#define kConformanceSpeechCA01TranscodedExponential (2.3691150188221259)
 
 #define kConformanceStraussLp35 (1.9905729378864558)
 
@@ -54,7 +56,8 @@
 
 #define kConformanceGuitarShortReferencePatch (4.6761039922498471)
 
-#define kConformanceDifferentAudios (1.5093694203696959)
+#define kConformanceDifferentAudiosLattice (1.176334023475647)
+#define kConformanceDifferentAudiosExponential (1.5093694203696959)
 
 #define kConformanceGlock48aac (4.333169489109431)
 
@@ -62,12 +65,14 @@
 
 #define kConformanceCastanetsIdentity (4.7321012530423481)
 
-#define kConformanceBadDegraded (1.5260486187764308)
+#define kConformanceBadDegradedLattice (1.187501072883606)
+#define kConformanceBadDegradedExponential (1.5260486187764308)
 
 #define kConformanceGuitarLongDuration (4.5177618344298294)
 
-#define kCA01_01UnscaledPerfectScore (4.1557613014690995)
+#define kCA01_01UnscaledPerfectScoreLattice (4.7375216484069824)
+#define kCA01_01UnscaledPerfectScoreExponential (4.1557613014690995)
 
 #define kCA01_01AsAudio (2.0003927800390828)
 
-#endif // VISQOL_INCLUDE_CONFORMANCE_H
+#endif  // VISQOL_INCLUDE_CONFORMANCE_H

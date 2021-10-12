@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <thread>
+#include <thread>  // NOLINT(build/c++11)
 
 #include "gtest/gtest.h"
 #include "absl/flags/flag.h"
@@ -37,29 +37,33 @@ const double kGuitarMoslqoNewModel = 4.7941287050621533;
 
 void thread_glock_test() {
   // Build command line args.
-  const Visqol::CommandLineArgs cmd_args = CommandLineArgsHelper
-      ("testdata/conformance_testdata_subset/glock48_stereo.wav",
-       "testdata/conformance_testdata_subset/glock48_stereo_48kbps_aac.wav");
+  const Visqol::CommandLineArgs cmd_args = CommandLineArgsHelper(
+      "testdata/conformance_testdata_subset/"
+      "glock48_stereo.wav",
+      "testdata/conformance_testdata_subset/"
+      "glock48_stereo_48kbps_aac.wav");
   auto files_to_compare = VisqolCommandLineParser::BuildFilePairPaths(cmd_args);
 
   // Init ViSQOL.
   Visqol::VisqolManager visqol;
-  auto status = visqol.Init(cmd_args.sim_to_quality_mapper_model, false, false,
-                            60);
+  auto status = visqol.Init(cmd_args.similarity_to_quality_mapper_model, false,
+                            false, 60);
   ASSERT_TRUE(status.ok());
 
   // Run ViSQOL.
-  auto status_or = visqol.Run(files_to_compare[0].reference,
-                              files_to_compare[0].degraded);
+  auto status_or =
+      visqol.Run(files_to_compare[0].reference, files_to_compare[0].degraded);
   ASSERT_TRUE(status_or.ok());
   ASSERT_NEAR(kConformanceGlock48aac, status_or.value().moslqo(), kTolerance);
 }
 
 void thread_guitar_test(const FilePath model, const double moslqo) {
   // Build command line args.
-  const Visqol::CommandLineArgs cmd_args = CommandLineArgsHelper
-      ("testdata/conformance_testdata_subset/guitar48_stereo.wav",
-       "testdata/conformance_testdata_subset/guitar48_stereo_64kbps_aac.wav");
+  const Visqol::CommandLineArgs cmd_args = CommandLineArgsHelper(
+      "testdata/conformance_testdata_subset/"
+      "guitar48_stereo.wav",
+      "testdata/conformance_testdata_subset/"
+      "guitar48_stereo_64kbps_aac.wav");
   auto files_to_compare = VisqolCommandLineParser::BuildFilePairPaths(cmd_args);
 
   // Init ViSQOL.
@@ -68,8 +72,8 @@ void thread_guitar_test(const FilePath model, const double moslqo) {
   ASSERT_TRUE(status.ok());
 
   // Run ViSQOL.
-  auto status_or = visqol.Run(files_to_compare[0].reference,
-                              files_to_compare[0].degraded);
+  auto status_or =
+      visqol.Run(files_to_compare[0].reference, files_to_compare[0].degraded);
   ASSERT_TRUE(status_or.ok());
   ASSERT_NEAR(moslqo, status_or.value().moslqo(), kTolerance);
 }
@@ -87,23 +91,20 @@ TEST(MultithreadingTest, SameInputSameModel) {
 // but with different model files.
 TEST(MultithreadingTest, SameInputDiffModel) {
   std::thread thread_1(thread_guitar_test, kDefaultModel,
-      kConformanceGuitar64aac);
-  std::thread thread_2(thread_guitar_test, kTestModel,
-      kGuitarMoslqoNewModel);
+                       kConformanceGuitar64aac);
+  std::thread thread_2(thread_guitar_test, kTestModel, kGuitarMoslqoNewModel);
   thread_1.join();
   thread_2.join();
-
 }
 
 // Run two visqol tests simultaneously with different input files for each run.
 TEST(MultithreadingTest, DifferentInput) {
   std::thread thread_1(thread_glock_test);
   std::thread thread_2(thread_guitar_test, kDefaultModel,
-      kConformanceGuitar64aac);
+                       kConformanceGuitar64aac);
   thread_1.join();
   thread_2.join();
-
 }
 
-} // namespace
-} // namespace Visqol
+}  // namespace
+}  // namespace Visqol

@@ -1,0 +1,517 @@
+# When using TFL canned estimators, feed nodes are named "features/name".
+# The feed list needs to include all the features used in the model for
+# AOT compilation to work.
+feed {
+  id { node_name: "features/tau" }
+  shape {
+    # We are compiling a model for batch size of 1.
+    dim { size: 1 }
+    # Input features are one-dimensional.
+    dim { size: 1 }
+  }
+}
+# 21 of each of fvnsim, fstdnsim, fvdegenergy.
+feed {
+  id { node_name: "features/fvnsim0" }
+  shape {
+    dim { size: 1 }
+    dim { size: 1 }
+  }
+}
+feed {
+  id { node_name: "features/fvnsim1" }
+  shape {
+    dim { size: 1 }
+    dim { size: 1 }
+  }
+}
+feed {
+  id { node_name: "features/fvnsim2" }
+  shape {
+    dim { size: 1 }
+    dim { size: 1 }
+  }
+}
+
+feed {
+  id { node_name: "features/fvnsim3" }
+  shape {
+    dim { size: 1 }
+    dim { size: 1 }
+  }
+}
+
+feed {
+  id { node_name: "features/fvnsim4" }
+  shape {
+    dim { size: 1 }
+    dim { size: 1 }
+  }
+}
+
+feed {
+  id { node_name: "features/fvnsim5" }
+  shape {
+    dim { size: 1 }
+    dim { size: 1 }
+  }
+}
+
+feed {
+  id { node_name: "features/fvnsim6" }
+  shape {
+    dim { size: 1 }
+    dim { size: 1 }
+  }
+}
+
+feed {
+  id { node_name: "features/fvnsim7" }
+  shape {
+    dim { size: 1 }
+    dim { size: 1 }
+  }
+}
+
+feed {
+  id { node_name: "features/fvnsim8" }
+  shape {
+    dim { size: 1 }
+    dim { size: 1 }
+  }
+}
+
+feed {
+  id { node_name: "features/fvnsim9" }
+  shape {
+    dim { size: 1 }
+    dim { size: 1 }
+  }
+}
+
+feed {
+  id { node_name: "features/fvnsim10" }
+  shape {
+    dim { size: 1 }
+    dim { size: 1 }
+  }
+}
+
+feed {
+  id { node_name: "features/fvnsim11" }
+  shape {
+    dim { size: 1 }
+    dim { size: 1 }
+  }
+}
+
+feed {
+  id { node_name: "features/fvnsim12" }
+  shape {
+    dim { size: 1 }
+    dim { size: 1 }
+  }
+}
+
+feed {
+  id { node_name: "features/fvnsim13" }
+  shape {
+    dim { size: 1 }
+    dim { size: 1 }
+  }
+}
+
+feed {
+  id { node_name: "features/fvnsim14" }
+  shape {
+    dim { size: 1 }
+    dim { size: 1 }
+  }
+}
+
+feed {
+  id { node_name: "features/fvnsim15" }
+  shape {
+    dim { size: 1 }
+    dim { size: 1 }
+  }
+}
+
+feed {
+  id { node_name: "features/fvnsim16" }
+  shape {
+    dim { size: 1 }
+    dim { size: 1 }
+  }
+}
+
+feed {
+  id { node_name: "features/fvnsim17" }
+  shape {
+    dim { size: 1 }
+    dim { size: 1 }
+  }
+}
+
+feed {
+  id { node_name: "features/fvnsim18" }
+  shape {
+    dim { size: 1 }
+    dim { size: 1 }
+  }
+}
+
+feed {
+  id { node_name: "features/fvnsim19" }
+  shape {
+    dim { size: 1 }
+    dim { size: 1 }
+  }
+}
+
+feed {
+  id { node_name: "features/fvnsim20" }
+  shape {
+    dim { size: 1 }
+    dim { size: 1 }
+  }
+}
+
+feed {
+  id { node_name: "features/fstdnsim0" }
+  shape {
+    dim { size: 1 }
+    dim { size: 1 }
+  }
+}
+feed {
+  id { node_name: "features/fstdnsim1" }
+  shape {
+    dim { size: 1 }
+    dim { size: 1 }
+  }
+}
+
+feed {
+  id { node_name: "features/fstdnsim2" }
+  shape {
+    dim { size: 1 }
+    dim { size: 1 }
+  }
+}
+
+feed {
+  id { node_name: "features/fstdnsim3" }
+  shape {
+    dim { size: 1 }
+    dim { size: 1 }
+  }
+}
+
+feed {
+  id { node_name: "features/fstdnsim4" }
+  shape {
+    dim { size: 1 }
+    dim { size: 1 }
+  }
+}
+
+feed {
+  id { node_name: "features/fstdnsim5" }
+  shape {
+    dim { size: 1 }
+    dim { size: 1 }
+  }
+}
+
+feed {
+  id { node_name: "features/fstdnsim6" }
+  shape {
+    dim { size: 1 }
+    dim { size: 1 }
+  }
+}
+
+feed {
+  id { node_name: "features/fstdnsim7" }
+  shape {
+    dim { size: 1 }
+    dim { size: 1 }
+  }
+}
+
+feed {
+  id { node_name: "features/fstdnsim8" }
+  shape {
+    dim { size: 1 }
+    dim { size: 1 }
+  }
+}
+
+feed {
+  id { node_name: "features/fstdnsim9" }
+  shape {
+    dim { size: 1 }
+    dim { size: 1 }
+  }
+}
+
+feed {
+  id { node_name: "features/fstdnsim10" }
+  shape {
+    dim { size: 1 }
+    dim { size: 1 }
+  }
+}
+
+feed {
+  id { node_name: "features/fstdnsim11" }
+  shape {
+    dim { size: 1 }
+    dim { size: 1 }
+  }
+}
+
+feed {
+  id { node_name: "features/fstdnsim12" }
+  shape {
+    dim { size: 1 }
+    dim { size: 1 }
+  }
+}
+
+feed {
+  id { node_name: "features/fstdnsim13" }
+  shape {
+    dim { size: 1 }
+    dim { size: 1 }
+  }
+}
+
+feed {
+  id { node_name: "features/fstdnsim14" }
+  shape {
+    dim { size: 1 }
+    dim { size: 1 }
+  }
+}
+
+feed {
+  id { node_name: "features/fstdnsim15" }
+  shape {
+    dim { size: 1 }
+    dim { size: 1 }
+  }
+}
+
+feed {
+  id { node_name: "features/fstdnsim16" }
+  shape {
+    dim { size: 1 }
+    dim { size: 1 }
+  }
+}
+
+feed {
+  id { node_name: "features/fstdnsim17" }
+  shape {
+    dim { size: 1 }
+    dim { size: 1 }
+  }
+}
+
+feed {
+  id { node_name: "features/fstdnsim18" }
+  shape {
+    dim { size: 1 }
+    dim { size: 1 }
+  }
+}
+
+feed {
+  id { node_name: "features/fstdnsim19" }
+  shape {
+    dim { size: 1 }
+    dim { size: 1 }
+  }
+}
+
+feed {
+  id { node_name: "features/fstdnsim20" }
+  shape {
+    dim { size: 1 }
+    dim { size: 1 }
+  }
+}
+
+feed {
+  id { node_name: "features/fvdegenergy0" }
+  shape {
+    dim { size: 1 }
+    dim { size: 1 }
+  }
+}
+feed {
+  id { node_name: "features/fvdegenergy1" }
+  shape {
+    dim { size: 1 }
+    dim { size: 1 }
+  }
+}
+
+feed {
+  id { node_name: "features/fvdegenergy2" }
+  shape {
+    dim { size: 1 }
+    dim { size: 1 }
+  }
+}
+
+feed {
+  id { node_name: "features/fvdegenergy3" }
+  shape {
+    dim { size: 1 }
+    dim { size: 1 }
+  }
+}
+
+feed {
+  id { node_name: "features/fvdegenergy4" }
+  shape {
+    dim { size: 1 }
+    dim { size: 1 }
+  }
+}
+
+feed {
+  id { node_name: "features/fvdegenergy5" }
+  shape {
+    dim { size: 1 }
+    dim { size: 1 }
+  }
+}
+
+feed {
+  id { node_name: "features/fvdegenergy6" }
+  shape {
+    dim { size: 1 }
+    dim { size: 1 }
+  }
+}
+
+feed {
+  id { node_name: "features/fvdegenergy7" }
+  shape {
+    dim { size: 1 }
+    dim { size: 1 }
+  }
+}
+
+feed {
+  id { node_name: "features/fvdegenergy8" }
+  shape {
+    dim { size: 1 }
+    dim { size: 1 }
+  }
+}
+
+feed {
+  id { node_name: "features/fvdegenergy9" }
+  shape {
+    dim { size: 1 }
+    dim { size: 1 }
+  }
+}
+
+feed {
+  id { node_name: "features/fvdegenergy10" }
+  shape {
+    dim { size: 1 }
+    dim { size: 1 }
+  }
+}
+
+feed {
+  id { node_name: "features/fvdegenergy11" }
+  shape {
+    dim { size: 1 }
+    dim { size: 1 }
+  }
+}
+
+feed {
+  id { node_name: "features/fvdegenergy12" }
+  shape {
+    dim { size: 1 }
+    dim { size: 1 }
+  }
+}
+
+feed {
+  id { node_name: "features/fvdegenergy13" }
+  shape {
+    dim { size: 1 }
+    dim { size: 1 }
+  }
+}
+
+feed {
+  id { node_name: "features/fvdegenergy14" }
+  shape {
+    dim { size: 1 }
+    dim { size: 1 }
+  }
+}
+
+feed {
+  id { node_name: "features/fvdegenergy15" }
+  shape {
+    dim { size: 1 }
+    dim { size: 1 }
+  }
+}
+
+feed {
+  id { node_name: "features/fvdegenergy16" }
+  shape {
+    dim { size: 1 }
+    dim { size: 1 }
+  }
+}
+
+feed {
+  id { node_name: "features/fvdegenergy17" }
+  shape {
+    dim { size: 1 }
+    dim { size: 1 }
+  }
+}
+
+feed {
+  id { node_name: "features/fvdegenergy18" }
+  shape {
+    dim { size: 1 }
+    dim { size: 1 }
+  }
+}
+
+feed {
+  id { node_name: "features/fvdegenergy19" }
+  shape {
+    dim { size: 1 }
+    dim { size: 1 }
+  }
+}
+
+feed {
+  id { node_name: "features/fvdegenergy20" }
+  shape {
+    dim { size: 1 }
+    dim { size: 1 }
+  }
+}
+
+# When using TFL canned estimators, output fetch node is named "output".
+fetch {
+  id { node_name: "output" }
+}

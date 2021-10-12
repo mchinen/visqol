@@ -18,13 +18,15 @@ PYBIND11_MODULE(visqol_lib_py, m) {
 
   m.doc() = "ViSQOL plugin";
   m.def("ConformanceSpeechCA01TranscodedValue",
-        []() { return kConformanceSpeechCA01Transcoded; });
+        []() { return kConformanceSpeechCA01TranscodedLattice; });
 
   pybind11::class_<Visqol::VisqolManager>(m, "VisqolManager")
       .def(pybind11::init<>())
-      .def("Init", &Visqol::VisqolManager::Init)
-      .def("Run", pybind11::overload_cast<const Visqol::FilePath &,
-                                          const Visqol::FilePath &>(
+      .def("Init",
+           pybind11::overload_cast<const Visqol::FilePath&, bool, bool, int,
+                                   bool>(&Visqol::VisqolManager::Init))
+      .def("Run", pybind11::overload_cast<const Visqol::FilePath&,
+                                          const Visqol::FilePath&>(
                       &Visqol::VisqolManager::Run));
 
   pybind11::class_<Visqol::VisqolApi>(m, "VisqolApi")
@@ -33,10 +35,7 @@ PYBIND11_MODULE(visqol_lib_py, m) {
       .def("Measure", &Visqol::VisqolApi::Measure);
 
   pybind11::class_<Visqol::FilePath>(m, "FilePath")
-      .def(pybind11::init<const std::string &>());
-
-  pybind11::google::RegisterProtoMessageType<SimilarityResultMsg>(m);
-
-  m.def("MakeVisqolConfig", []() { return Visqol::VisqolConfig(); });
+      .def(pybind11::init<absl::string_view>());
 }
+
 }  // namespace Visqol

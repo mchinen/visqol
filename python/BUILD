@@ -1,4 +1,4 @@
-load("//third_party/pybind11/:build_defs.bzl", "pybind_extension")
+load("@pybind11_bazel//:build_defs.bzl", "pybind_extension")
 
 licenses(["notice"])
 
@@ -6,10 +6,12 @@ licenses(["notice"])
 pybind_extension(
     name = "visqol_lib_py",
     srcs = ["visqol_lib_py.cc"],
+    py_deps = [
+        "//third_party/visqol:similarity_result_py_pb2",
+        "//third_party/visqol:visqol_config_py_pb2",
+    ],
     visibility = ["//visibility:public"],
     deps = [
-        "@com_google_absl//absl/status",
-        "@pybind11_bazel//:pybind11_eigen",
         "@pybind11_abseil//:absl_casters",
         "@pybind11_abseil//:absl_numpy_span_caster",
         "@pybind11_abseil//:status_casters",
@@ -31,7 +33,9 @@ py_test(
     python_version = "PY3",
     deps = [
         ":visqol_lib_py",
+        "//pyglib:resources",
         "//testing/pybase",
+        "//third_party/py/absl/logging",
         "@numpy//:numpy",
     ],
 )

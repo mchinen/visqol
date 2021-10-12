@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "visqol_manager.h"
+#include "conformance.h"
 
 #include <vector>
 
 #include "gtest/gtest.h"
-
-#include "conformance.h"
+#include "absl/strings/string_view.h"
 #include "similarity_result.h"
+#include "visqol_manager.h"
 #include "test_utility.h"
 
 namespace Visqol {
@@ -28,15 +28,17 @@ namespace {
 const double kTolerance = 0.0001;
 
 // Struct for holding input args and expected output MOSLQO.
-struct ConformanceTestData{
+struct ConformanceTestData {
   const double expected_result;
   const Visqol::CommandLineArgs test_inputs;
 
-  ConformanceTestData(const std::string &ref_file, const std::string &deg_file,
-                      const bool speech_mode, const double exp_result)
+  ConformanceTestData(absl::string_view reference_file,
+                      absl::string_view degraded_file, bool speech_mode,
+                      double exp_result, bool use_lattice)
       : expected_result{exp_result},
-        test_inputs{
-            CommandLineArgsHelper(ref_file, deg_file, "", speech_mode)} {}
+        test_inputs{CommandLineArgsHelper(reference_file, degraded_file, "",
+                                          speech_mode, false, 60,
+                                          use_lattice)} {}
 };
 
 // Class definition necessary for Value-Parameterized Tests.
@@ -45,17 +47,19 @@ class ConformanceTest : public ::testing::TestWithParam<ConformanceTestData> {};
 // Assert that the MOSLQO returned matches the last known version.
 TEST_P(ConformanceTest, ConformanceWithKnownScores) {
   Visqol::VisqolManager visqol;
-  auto files_to_compare = VisqolCommandLineParser::BuildFilePairPaths(
-      GetParam().test_inputs);
+  auto files_to_compare =
+      VisqolCommandLineParser::BuildFilePairPaths(GetParam().test_inputs);
 
-  auto status = visqol.Init(GetParam().test_inputs.sim_to_quality_mapper_model,
-      GetParam().test_inputs.use_speech_mode,
-      GetParam().test_inputs.use_unscaled_speech_mos_mapping,
-      GetParam().test_inputs.search_window_radius);
+  auto status =
+      visqol.Init(GetParam().test_inputs.similarity_to_quality_mapper_model,
+                  GetParam().test_inputs.use_speech_mode,
+                  GetParam().test_inputs.use_unscaled_speech_mos_mapping,
+                  GetParam().test_inputs.search_window_radius,
+                  GetParam().test_inputs.use_lattice_model);
   ASSERT_TRUE(status.ok());
 
-  auto status_or = visqol.Run(files_to_compare[0].reference,
-                              files_to_compare[0].degraded);
+  auto status_or =
+      visqol.Run(files_to_compare[0].reference, files_to_compare[0].degraded);
   ASSERT_TRUE(status_or.ok());
   EXPECT_NEAR(GetParam().expected_result, status_or.value().moslqo(),
               kTolerance);
@@ -68,87 +72,100 @@ INSTANTIATE_TEST_CASE_P(
         ConformanceTestData(
             "testdata/clean_speech/CA01_01.wav",
             "testdata/clean_speech/transcoded_CA01_01.wav",
-            true, kConformanceSpeechCA01Transcoded),
+            true, kConformanceSpeechCA01TranscodedLattice, true),
+        ConformanceTestData(
+            "testdata/clean_speech/CA01_01.wav",
+            "testdata/clean_speech/transcoded_CA01_01.wav",
+            true, kConformanceSpeechCA01TranscodedExponential, false),
         ConformanceTestData(
             "testdata/conformance_testdata_subset/"
             "strauss48_stereo.wav",
             "testdata/conformance_testdata_subset/"
             "strauss48_stereo_lp35.wav",
-            false, kConformanceStraussLp35),
+            false, kConformanceStraussLp35, false),
         ConformanceTestData(
             "testdata/conformance_testdata_subset/"
             "steely48_stereo.wav",
             "testdata/conformance_testdata_subset/"
             "steely48_stereo_lp7.wav",
-            false, kConformanceSteelyLp7),
+            false, kConformanceSteelyLp7, false),
         ConformanceTestData(
             "testdata/conformance_testdata_subset/"
             "sopr48_stereo.wav",
             "testdata/conformance_testdata_subset/"
             "sopr48_stereo_256kbps_aac.wav",
-            false, kConformanceSopr256aac),
+            false, kConformanceSopr256aac, false),
         ConformanceTestData(
             "testdata/conformance_testdata_subset/"
             "ravel48_stereo.wav",
             "testdata/conformance_testdata_subset/"
             "ravel48_stereo_128kbps_opus.wav",
-            false, kConformanceRavel128opus),
+            false, kConformanceRavel128opus, false),
         ConformanceTestData(
             "testdata/conformance_testdata_subset/"
             "moonlight48_stereo.wav",
             "testdata/conformance_testdata_subset/"
             "moonlight48_stereo_128kbps_aac.wav",
-            false, kConformanceMoonlight128aac),
+            false, kConformanceMoonlight128aac, false),
         ConformanceTestData(
             "testdata/conformance_testdata_subset/"
             "harpsichord48_stereo.wav",
             "testdata/conformance_testdata_subset/"
             "harpsichord48_stereo_96kbps_mp3.wav",
-            false, kConformanceHarpsichord96mp3),
+            false, kConformanceHarpsichord96mp3, false),
         ConformanceTestData(
             "testdata/conformance_testdata_subset/"
             "guitar48_stereo.wav",
             "testdata/conformance_testdata_subset/"
             "guitar48_stereo_64kbps_aac.wav",
-            false, kConformanceGuitar64aac),
+            false, kConformanceGuitar64aac, false),
         ConformanceTestData(
             "testdata/conformance_testdata_subset/"
             "glock48_stereo.wav",
             "testdata/conformance_testdata_subset/"
             "glock48_stereo_48kbps_aac.wav",
-            false, kConformanceGlock48aac),
+            false, kConformanceGlock48aac, false),
         ConformanceTestData(
             "testdata/conformance_testdata_subset/"
             "contrabassoon48_stereo.wav",
             "testdata/conformance_testdata_subset/"
             "contrabassoon48_stereo_24kbps_aac.wav",
-            false, kConformanceContrabassoon24aac),
+            false, kConformanceContrabassoon24aac, false),
         ConformanceTestData(
             "testdata/conformance_testdata_subset/"
             "castanets48_stereo.wav",
             "testdata/conformance_testdata_subset/"
             "castanets48_stereo.wav",
-            false, kConformanceCastanetsIdentity),
+            false, kConformanceCastanetsIdentity, false),
         ConformanceTestData(
             "testdata/conformance_testdata_subset/"
             "guitar48_stereo.wav",
             "testdata/short_duration/5_second/"
             "guitar48_stereo_5_sec.wav",
-            false, kConformanceGuitarShortDegradedPatch),
+            false, kConformanceGuitarShortDegradedPatch, false),
         ConformanceTestData(
             "testdata/short_duration/5_second/"
             "guitar48_stereo_5_sec.wav",
             "testdata/conformance_testdata_subset/"
             "guitar48_stereo.wav",
-            false, kConformanceGuitarShortReferencePatch),
+            false, kConformanceGuitarShortReferencePatch, false),
         ConformanceTestData(
             "testdata/conformance_testdata_subset/"
             "guitar48_stereo.wav",
             "testdata/clean_speech/CA01_01.wav", true,
-            kConformanceDifferentAudios),
+            kConformanceDifferentAudiosLattice, true),
+        ConformanceTestData(
+            "testdata/conformance_testdata_subset/"
+            "guitar48_stereo.wav",
+            "testdata/clean_speech/CA01_01.wav", true,
+            kConformanceDifferentAudiosExponential, false),
         ConformanceTestData(
             "testdata/alignment/reference.wav",
             "testdata/alignment/degraded.wav", true,
-            kConformanceBadDegraded)));
-} // namespace
-} // namespace Visqol
+            kConformanceBadDegradedLattice, true),
+        ConformanceTestData(
+            "testdata/alignment/reference.wav",
+            "testdata/alignment/degraded.wav", true,
+            kConformanceBadDegradedExponential, false)));
+}  // namespace
+}  // namespace Visqol

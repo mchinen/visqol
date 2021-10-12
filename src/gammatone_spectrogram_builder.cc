@@ -18,25 +18,26 @@
 #include <utility>
 #include <vector>
 
+#include "absl/status/statusor.h"
+#include "absl/strings/str_cat.h"
 #include "amatrix.h"
 #include "analysis_window.h"
 #include "audio_signal.h"
 #include "equivalent_rectangular_bandwidth.h"
 #include "signal_filter.h"
 #include "spectrogram.h"
-#include "absl/status/statusor.h"
 
 namespace Visqol {
 
 const double GammatoneSpectrogramBuilder::kSpeechModeMaxFreq = 8000.0;
 
 GammatoneSpectrogramBuilder::GammatoneSpectrogramBuilder(
-    const GammatoneFilterBank &filter_bank, const bool use_speech_mode) :
-    filter_bank_(filter_bank), speech_mode_(use_speech_mode) {}
+    const GammatoneFilterBank& filter_bank, const bool use_speech_mode)
+    : filter_bank_(filter_bank), speech_mode_(use_speech_mode) {}
 
 absl::StatusOr<Spectrogram> GammatoneSpectrogramBuilder::Build(
-    const AudioSignal &signal, const AnalysisWindow &window) {
-  const auto &sig = signal.data_matrix;
+    const AudioSignal& signal, const AnalysisWindow& window) {
+  const AMatrix<double>& sig = signal.data_matrix;
   size_t sample_rate = signal.sample_rate;
   double max_freq = speech_mode_ ? kSpeechModeMaxFreq : sample_rate / 2.0;
 
@@ -56,11 +57,10 @@ absl::StatusOr<Spectrogram> GammatoneSpectrogramBuilder::Build(
 
   // ensure that the signal is large enough.
   if (sig.NumRows() <= window.size) {
-    return absl::Status(
-        absl::StatusCode::kInvalidArgument,
-        "Too few samples (" + std::to_string(sig.NumRows()) + ") in signal to "
-        "build spectrogram (" + std::to_string(window.size) +
-        " required minimum).");
+    return absl::InvalidArgumentError(
+        absl::StrCat("Too few samples (", sig.NumRows(),
+                     ") in signal to  build spectrogram (",
+                     window.size, " required minimum)."));
   }
   size_t num_cols = 1 + floor((sig.NumRows() - window.size) / hop_size);
   AMatrix<double> out_matrix(filter_bank_.GetNumBands(), num_cols);
@@ -77,10 +77,10 @@ absl::StatusOr<Spectrogram> GammatoneSpectrogramBuilder::Build(
     // calculate the mean of each row
     std::transform(filtered_signal.begin(), filtered_signal.end(),
                    filtered_signal.begin(),
-                   [](decltype(*filtered_signal.begin()) &d) { return d * d; });
+                   [](decltype(*filtered_signal.begin())& d) { return d * d; });
     AMatrix<double> row_means = filtered_signal.Mean(kDimension::ROW);
     std::transform(row_means.begin(), row_means.end(), row_means.begin(),
-                   [](decltype(*row_means.begin()) &d) { return sqrt(d); });
+                   [](decltype(*row_means.begin())& d) { return sqrt(d); });
     // set this filtered frame as a column in the spectrogram
     out_matrix.SetColumn(i, std::move(row_means));
   }
@@ -89,8 +89,7 @@ absl::StatusOr<Spectrogram> GammatoneSpectrogramBuilder::Build(
   std::vector<double> ordered_cfb;
   ordered_cfb.reserve(erb_rslt.centerFreqs.size());
   for (auto itr = erb_rslt.centerFreqs.rbegin();
-       itr != erb_rslt.centerFreqs.rend();
-       ++itr) {
+       itr != erb_rslt.centerFreqs.rend(); ++itr) {
     ordered_cfb.push_back(*itr);
   }
 
