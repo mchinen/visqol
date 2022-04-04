@@ -55,3 +55,43 @@ build --linkopt=-ldl
 build --host_cxxopt=-std=c++17
 
 build --experimental_repo_remote_exec
+
+# Enable platform specific config (e.g. by default use --config=windows when on windows, and --config=linux when on linux)
+build --enable_platform_specific_config
+
+
+## Windows config
+startup --windows_enable_symlinks
+build:windows --enable_runfiles
+
+build:windows --copt=/D_USE_MATH_DEFINES
+build:windows --host_copt=/D_USE_MATH_DEFINES
+build:windows --cxxopt=-D_HAS_DEPRECATED_RESULT_OF=1
+
+build:windows --cxxopt=/Zc:__cplusplus
+build:windows  --cxxopt=/std:c++20
+build:windows  --linkopt=-ldl
+build:windows  --host_cxxopt=/std:c++20
+
+# Make sure to include as little of windows.h as possible
+build:windows --copt=-DWIN32_LEAN_AND_MEAN
+build:windows --host_copt=-DWIN32_LEAN_AND_MEAN
+build:windows --copt=-DNOGDI
+build:windows --host_copt=-DNOGDI
+
+# MSVC (Windows): Standards-conformant preprocessor mode
+# See https://docs.microsoft.com/en-us/cpp/preprocessor/preprocessor-experimental-overview
+build:windows --copt=/Zc:preprocessor
+build:windows --host_copt=/Zc:preprocessor
+
+# Misc build options we need for windows according to tensorflow
+build:windows --linkopt=/DEBUG
+build:windows --host_linkopt=/DEBUG
+build:windows --linkopt=/OPT:REF
+build:windows --host_linkopt=/OPT:REF
+build:windows --linkopt=/OPT:ICF
+build:windows --host_linkopt=/OPT:ICF
+#build:windows --define compiler=clang-cl
+build:windows --host_copt=-D__PRETTY_FUNCTION__=__FUNCSIG__
+build:windows --copt=-D__PRETTY_FUNCTION__=__FUNCSIG__
+

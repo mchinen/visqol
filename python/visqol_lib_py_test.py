@@ -9,6 +9,7 @@ import numpy as np
 import unittest
 
 from python import visqol_lib_py
+
 import visqol_config_pb2
 import similarity_result_pb2
 

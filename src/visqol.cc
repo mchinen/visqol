@@ -15,6 +15,7 @@
 #include "visqol.h"
 
 #include <cmath>
+#include <numeric>
 #include <utility>
 #include <vector>
 

@@ -17,6 +17,8 @@ load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository", "new_git_r
 # See https://github.com/pybind/pybind11_bazel
 http_archive(
     name = "pybind11_bazel",
+    patch_args = ["-p1"],
+    patches = ["//:pybind11_fixdistutils.patch.txt"],
     strip_prefix = "pybind11_bazel-72cbbf1fbc830e487e3012862b7b720001b70672",
     sha256 = "516c1b3a10d87740d2b7de6f121f8e19dde2c372ecbfe59aef44cd1872c10395",
     urls = ["https://github.com/pybind/pybind11_bazel/archive/72cbbf1fbc830e487e3012862b7b720001b70672.tar.gz"],
@@ -37,9 +39,8 @@ python_configure(name = "local_config_python")
 
 git_repository(
     name = "pybind11_abseil",
-    remote = "https://github.com/pybind/pybind11_abseil.git",
-    commit = "5f2e3bafef99e7fa418178e07a1cbade843f5dc5",
-    shallow_since = "1648675594 -0700",
+    remote = "https://github.com/mchinen/pybind11_abseil.git",
+    commit = "a0c36ca08d894b5a138dff31a9057a7dcacfb8fc",
 )
 
 git_repository(
